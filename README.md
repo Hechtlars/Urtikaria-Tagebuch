@@ -1,10 +1,4 @@
-# Urtikaria Tagebuch v5.1
-
-Fehlerkorrektur der V5:
-- weiße Seite behoben
-- versehentlich in den PDF-JavaScript-Block geratenes CSS entfernt
-- Haupt-Stylesheet korrekt geschlossen
-- Service-Worker-Cache auf v5.1 erhöht
-- Hand-/Urtikaria-App-Icon bleibt enthalten
-
-Für GitHub alle Dateien dieses Ordners hochladen und vorhandene Dateien ersetzen.
+# Urtikaria Tagebuch V6
+Bereinigte Version mit Hand-/Urtikaria-App-Icon.
+Die JavaScript-Datei wurde vor dem Paketieren mit Node auf Syntaxfehler geprüft.
+Alle 7 Dateien direkt in den Root des GitHub-Repositories hochladen und vorhandene Dateien ersetzen.
