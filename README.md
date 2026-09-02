@@ -1,3 +1,3 @@
-# Urtikaria Tagebuch – Version 2.3
+# Urtikaria Tagebuch – Version 2.4
 
-Schlanke PWA ohne Push-Funktion. Tagebuchdaten werden lokal im Browser gespeichert.
+Schlanke PWA. Tagebuchdaten werden lokal im Browser gespeichert.
