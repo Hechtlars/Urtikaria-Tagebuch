@@ -1,3 +1,4 @@
-# Urtikaria Tagebuch – V1.9 Push
+# Urtikaria Tagebuch – V1.9 Push (verbunden)
 
-Kalender-Erinnerung entfernt. Echter Web Push vorbereitet. Siehe PUSH-EINRICHTUNG.txt.
+Push-Backend ist mit dem eingerichteten Cloudflare Worker verbunden.
+Worker: https://urtikaria-push.urtikaria-app.workers.dev

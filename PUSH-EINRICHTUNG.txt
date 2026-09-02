@@ -28,3 +28,8 @@ App vom Home-Bildschirm öffnen > Mehr > Push-Erinnerung > Uhrzeit > Aktivieren 
 
 Cloudflare-Free-Tarif: Für einen kleinen Prototyp/Piloten ausgelegt. Vor breiter öffentlicher
 oder produktiver Nutzung Datenschutz, Auftragsverarbeitung, Limits und Betriebsverantwortung prüfen.
+
+
+STATUS: Push-Server ist verbunden:
+https://urtikaria-push.urtikaria-app.workers.dev
+Die Ersetzung in index.html ist in dieser ZIP bereits erfolgt.
