@@ -1,4 +1,3 @@
-# Urtikaria Tagebuch – V1.9 Push (verbunden)
+# Urtikaria Tagebuch – Version 2.3
 
-Push-Backend ist mit dem eingerichteten Cloudflare Worker verbunden.
-Worker: https://urtikaria-push.urtikaria-app.workers.dev
+Schlanke PWA ohne Push-Funktion. Tagebuchdaten werden lokal im Browser gespeichert.
