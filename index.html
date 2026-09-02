@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Urtikaria">
-<meta name="app-version" content="NEUBAU-1.1">
+<meta name="app-version" content="NEUBAU-1.3">
 <title>Urtikaria Tagebuch</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-180.png">
@@ -40,6 +40,7 @@ canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repe
 <main class="wrap">
 <section id="todayView" class="view on">
 <h1>Heute</h1><div class="muted" id="todayLabel"></div>
+<div id="updateNotice" class="banner" style="display:none;background:#eaf7ed;border-color:#cce9d2">✓ App wurde automatisch auf <b>Version <span id="updatedVersion"></span></b> aktualisiert.</div>
 <div id="status" class="banner">Heute noch nicht erfasst.</div>
 <div class="card"><h2>1. Quaddeln <span class="muted">(letzte 24 h)</span></h2><div class="choices" id="wheals">
 <button class="choice" data-v="0"><b>0</b><small>Keine</small></button><button class="choice" data-v="1"><b>1</b><small>&lt; 20</small></button><button class="choice" data-v="2"><b>2</b><small>20–50</small></button><button class="choice" data-v="3"><b>3</b><small>&gt; 50</small></button></div></div>
@@ -60,7 +61,7 @@ canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repe
 
 <section id="courseView" class="view"><h1>Verlauf</h1><div class="card"><div class="metricgrid"><div class="metric"><span class="muted">UAS7</span><b id="uas7">–</b></div><div class="metric"><span class="muted">Ø 7 Tage</span><b id="avg7">–</b></div><div class="metric"><span class="muted">Angioödem</span><b id="angio7">–</b></div></div></div><div class="card"><h2>Letzte 30 Tage</h2><canvas id="chart" width="640" height="220"></canvas></div><div class="card"><h2>Einträge</h2><div id="entries"></div></div></section>
 <section id="calendarView" class="view"><h1>Kalender</h1><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><button class="action" id="prevMonth">‹</button><b id="monthTitle"></b><button class="action" id="nextMonth">›</button></div><div class="calendar" id="calendar"></div></div></section>
-<section id="moreView" class="view"><h1>Mehr</h1><div class="card"><h2>Datensicherung</h2><p class="muted">Die App speichert Einträge lokal in diesem Browser. Exportiere regelmäßig eine Sicherung.</p><button class="action" id="exportBtn">Sicherung exportieren</button> <label class="action">Sicherung importieren<input id="importFile" type="file" accept=".json" hidden></label></div><div class="card"><h2>Arztbericht</h2><p class="muted">Öffnet eine druckfreundliche Übersicht. Im Druckdialog kannst du „Als PDF sichern“ wählen.</p><button class="action" id="reportBtn">Bericht öffnen</button></div><div class="card"><h2>App</h2><div class="muted">Neubau Version 1.1 · vollständig neuer Quellcode</div></div></section>
+<section id="moreView" class="view"><h1>Mehr</h1><div class="card"><h2>Datensicherung</h2><p class="muted">Die App speichert Einträge lokal in diesem Browser. Exportiere regelmäßig eine Sicherung.</p><button class="action" id="exportBtn">Sicherung exportieren</button> <label class="action">Sicherung importieren<input id="importFile" type="file" accept=".json" hidden></label></div><div class="card"><h2>Arztbericht</h2><p class="muted">Öffnet eine druckfreundliche Übersicht. Im Druckdialog kannst du „Als PDF sichern“ wählen.</p><button class="action" id="reportBtn">Bericht öffnen</button></div><div class="card"><h2>App</h2><div class="muted">Neubau Version 1.3 · automatische Updates aktiviert</div></div></section>
 </main>
 
 <nav><div class="inner"><button class="on" data-view="todayView">Heute</button><button data-view="courseView">Verlauf</button><button data-view="calendarView">Kalender</button><button data-view="moreView">Mehr</button></div></nav>
@@ -81,6 +82,26 @@ function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
 function prettyDate(s){return new Intl.DateTimeFormat("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}).format(new Date(s+"T12:00:00"))}
 function score(e){return Number(e.wheals)+Number(e.itch)}
 function setView(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===id));if(id==="courseView")renderCourse();if(id==="calendarView")renderCalendar()}
+const APP_VERSION="1.3";
+function showUpdateNotice(){
+ const last=localStorage.getItem("urtikariaLastSeenAppVersion");
+ if(last && last!==APP_VERSION){
+   $("updatedVersion").textContent=APP_VERSION;
+   $("updateNotice").style.display="block";
+ }
+ localStorage.setItem("urtikariaLastSeenAppVersion",APP_VERSION);
+}
+async function ensureLatestApp(){
+ if(!("serviceWorker" in navigator))return;
+ try{
+   const reg=await navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"});
+   await reg.update();
+   let refreshing=false;
+   navigator.serviceWorker.addEventListener("controllerchange",()=>{
+     if(refreshing)return; refreshing=true; location.reload();
+   });
+ }catch(e){console.warn("Update-Prüfung fehlgeschlagen",e)}
+}
 function resetForm(date){editDate=date;const e=db.entries[date];form=e?JSON.parse(JSON.stringify(e)):{wheals:null,itch:null,angio:false,angioLocation:"",selectedMedication:null,meds:[],triggers:[],notes:""};if(e&&e.medication){const i=db.medPresets.findIndex(m=>m.name===e.medication.name&&m.dose===e.medication.dose);form.selectedMedication=i>=0?i:null}renderForm()}
 function renderForm(){
  $("todayLabel").textContent=prettyDate(editDate);$("status").textContent=db.entries[editDate]?"Eintrag vorhanden – Änderungen werden beim Speichern übernommen.":"Noch nicht erfasst.";
@@ -127,6 +148,6 @@ triggerNames.forEach(x=>{const b=document.createElement("button");b.textContent=
 $("saveBtn").onclick=saveEntry;$("addMedPreset").onclick=addMedicationPreset;$("prevMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1);renderCalendar()};$("nextMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1);renderCalendar()};
 $("exportBtn").onclick=()=>download("urtikaria-sicherung.json",JSON.stringify(db,null,2),"application/json");$("importFile").onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(!x.entries)throw new Error();db=x;persist();resetForm(iso(new Date()));alert("Sicherung importiert.")}catch{alert("Die Sicherungsdatei konnte nicht gelesen werden.")}};$("reportBtn").onclick=report;
 resetForm(iso(new Date()));renderCalendar();
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+window.addEventListener("load",()=>{showUpdateNotice();ensureLatestApp()});
 </script>
 </body></html>

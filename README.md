@@ -1,5 +1,6 @@
-# Urtikaria Tagebuch – Neubau 1.1
+# Urtikaria Tagebuch – Neubau 1.3
 
-Komplett neuer Quellcode auf Basis des sauberen Neubaus 1.0.
-
-Neu: Antihistaminika können mit Präparatname und Dosierung gespeichert und später mit einem Klick ausgewählt werden.
+Neu:
+- Name auf dem iPhone-Home-Bildschirm: **Urtikaria**
+- Titel innerhalb der App bleibt **Urtikaria Tagebuch**
+- automatische Update-Mechanik bleibt aktiv
