@@ -1,25 +1,19 @@
-# Urtikaria Tagebuch v4 – iPhone optimiert
+# Urtikaria Tagebuch v5
 
-## Bedienkomfort
-- große Touch-Flächen für Quaddeln/Juckreiz
-- kompaktere Darstellung auf kleinen iPhones
-- Fortschrittsanzeige für die zwei Pflichtangaben
-- Speichern-Button bleibt beim Scrollen gut erreichbar
-- häufige mögliche Auslöser als Ein-Tap-Chips
-- „Angaben von gestern übernehmen“, wenn gestern dokumentiert und heute noch leer ist
-- haptisches Kurzfeedback beim Speichern, sofern vom Browser unterstützt
-- iPhone Safe-Area-Unterstützung und PWA-Standalone-Modus
-- Monatsansicht markiert zusätzlich Angioödem-Tage
+## Neu in V5
+- Das vom Nutzer bereitgestellte Hand-/Urtikaria-Symbol ist jetzt das App-Icon.
+- Apple-Touch-Icon für „Zum Home-Bildschirm“ auf dem iPhone.
+- PWA-Icons in 192 × 192 und 512 × 512 Pixel.
+- Das Logo erscheint links oben in der App und dient als Home-Button zur Tageserfassung.
 
-## Auswertung
-- 7/30/90-Tage-Verlauf und Kurve
-- Monatskalender
-- Bearbeiten/Löschen
-- Arztbericht mit Zeitraum, Verlaufskurve, Kennzahlen und Tagesdetails
-- CSV und JSON-Backup
+## Upload zu GitHub
+Alle Dateien dieses Ordners direkt in das Repository hochladen:
+- index.html
+- manifest.webmanifest
+- sw.js
+- README.md
+- icon-180.png
+- icon-192.png
+- icon-512.png
 
-## GitHub Pages
-`index.html`, `manifest.webmanifest`, `sw.js` und `README.md` direkt in das Repository hochladen.
-Settings → Pages → Deploy from a branch → main / (root).
-
-Die Daten bleiben lokal im Browser. Regelmäßige JSON-Sicherung wird empfohlen.
+Bei einem Update vorhandene gleichnamige Dateien auf GitHub ersetzen.
