@@ -1,3 +1,5 @@
-# Urtikaria Tagebuch – Neubau 1.0
+# Urtikaria Tagebuch – Neubau 1.1
 
-Komplett neuer Quellcode. Keine frühere App-Version wurde als Codebasis verwendet.
+Komplett neuer Quellcode auf Basis des sauberen Neubaus 1.0.
+
+Neu: Antihistaminika können mit Präparatname und Dosierung gespeichert und später mit einem Klick ausgewählt werden.
