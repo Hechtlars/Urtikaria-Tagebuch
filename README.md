@@ -1,6 +1,3 @@
-# Urtikaria Tagebuch – Neubau 1.3
+# Urtikaria Tagebuch – Neubau 1.5
 
-Neu:
-- Name auf dem iPhone-Home-Bildschirm: **Urtikaria**
-- Titel innerhalb der App bleibt **Urtikaria Tagebuch**
-- automatische Update-Mechanik bleibt aktiv
+Neu: Bei der Medikamentendosierung wird die Einheit **mg** direkt hinter dem Eingabefeld angezeigt und automatisch gespeichert.

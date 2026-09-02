@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Urtikaria">
-<meta name="app-version" content="NEUBAU-1.3">
+<meta name="app-version" content="NEUBAU-1.5">
 <title>Urtikaria Tagebuch</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-180.png">
@@ -30,7 +30,7 @@ nav .inner{width:min(680px,100%);display:grid;grid-template-columns:repeat(4,1fr
 .view{display:none}.view.on{display:block}.entry{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.entry:last-child{border:0}
 .metricgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{text-align:center;background:#fafafa;border-radius:13px;padding:10px}.metric b{display:block;font-size:20px;color:var(--brand)}
 canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calcell{min-height:52px;background:#fafafa;border-radius:10px;padding:5px;font-size:12px}.dot{display:inline-block;margin-top:4px;padding:3px 6px;border-radius:999px;background:var(--soft);color:var(--brand);font-weight:800}
-.action{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px}.danger{color:#a02020}.banner{background:var(--soft);border:1px solid #d8dcff;border-radius:14px;padding:12px;margin:10px 0}
+.action{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px}.danger{color:#a02020}.banner{background:var(--soft);border:1px solid #d8dcff;border-radius:14px;padding:12px;margin:10px 0}.toast{position:fixed;left:50%;bottom:145px;transform:translateX(-50%);z-index:20;background:#182016;color:white;padding:11px 16px;border-radius:999px;font-weight:800;opacity:0;transition:.2s}.toast.show{opacity:1}.dosegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.dosebox{text-align:center;background:#fafafa;border-radius:13px;padding:8px}.dosebox select{width:100%;padding:8px;border:1px solid var(--line);border-radius:9px;background:white}
 @media(max-width:390px){.wrap{padding:10px}.choice{min-height:68px}.card{padding:13px}.choices{gap:6px}}
 </style>
 </head>
@@ -50,10 +50,12 @@ canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repe
 <div class="card"><h2>3. Angioödem</h2><div class="two" id="angio"><button class="pill" data-v="false">Nein</button><button class="pill" data-v="true">Ja</button></div><div id="locationBox" style="display:none;margin-top:10px"><textarea id="angioLocation" placeholder="Wo trat die Schwellung auf?"></textarea></div></div>
 <div class="card"><h2>4. Antihistaminikum</h2>
 <div id="medPresets" class="chips"></div>
-<div class="two" style="margin-top:10px"><input id="medName" placeholder="Präparat, z. B. Cetirizin"><input id="medDose" placeholder="Dosierung, z. B. 10 mg"></div>
+<div class="two" style="margin-top:10px"><input id="medName" placeholder="Präparat, z. B. Cetirizin"><div style="display:flex;align-items:center;gap:7px"><input id="medDose" inputmode="decimal" placeholder="Dosierung, z. B. 10"><b>mg</b></div></div>
 <button class="action" id="addMedPreset" style="margin-top:8px">Präparat speichern</button>
-<div class="muted" style="margin:12px 0 6px">Zeitpunkt der Einnahme</div>
-<div class="times" id="meds"><button data-v="morgens">Morgens</button><button data-v="mittags">Mittags</button><button data-v="abends">Abends</button><button data-v="nachts">Nachts</button></div>
+<div class="muted" style="margin:12px 0 6px">Anzahl Tabletten</div><div class="dosegrid">
+<div class="dosebox"><label>Morgens</label><select id="tabsMorning"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+<div class="dosebox"><label>Mittags</label><select id="tabsNoon"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+<div class="dosebox"><label>Abends</label><select id="tabsEvening"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div></div>
 </div>
 <div class="card"><h2>5. Auslöser / Besonderheiten</h2><div class="chips" id="triggers"></div><textarea id="notes" placeholder="Weitere Auslöser / Notizen …" style="margin-top:10px"></textarea></div>
 <button class="save" id="saveBtn">Speichern</button>
@@ -61,9 +63,8 @@ canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repe
 
 <section id="courseView" class="view"><h1>Verlauf</h1><div class="card"><div class="metricgrid"><div class="metric"><span class="muted">UAS7</span><b id="uas7">–</b></div><div class="metric"><span class="muted">Ø 7 Tage</span><b id="avg7">–</b></div><div class="metric"><span class="muted">Angioödem</span><b id="angio7">–</b></div></div></div><div class="card"><h2>Letzte 30 Tage</h2><canvas id="chart" width="640" height="220"></canvas></div><div class="card"><h2>Einträge</h2><div id="entries"></div></div></section>
 <section id="calendarView" class="view"><h1>Kalender</h1><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><button class="action" id="prevMonth">‹</button><b id="monthTitle"></b><button class="action" id="nextMonth">›</button></div><div class="calendar" id="calendar"></div></div></section>
-<section id="moreView" class="view"><h1>Mehr</h1><div class="card"><h2>Datensicherung</h2><p class="muted">Die App speichert Einträge lokal in diesem Browser. Exportiere regelmäßig eine Sicherung.</p><button class="action" id="exportBtn">Sicherung exportieren</button> <label class="action">Sicherung importieren<input id="importFile" type="file" accept=".json" hidden></label></div><div class="card"><h2>Arztbericht</h2><p class="muted">Öffnet eine druckfreundliche Übersicht. Im Druckdialog kannst du „Als PDF sichern“ wählen.</p><button class="action" id="reportBtn">Bericht öffnen</button></div><div class="card"><h2>App</h2><div class="muted">Neubau Version 1.3 · automatische Updates aktiviert</div></div></section>
-</main>
-
+<section id="moreView" class="view"><h1>Mehr</h1><div class="card"><h2>Datensicherung</h2><p class="muted">Die App speichert Einträge lokal in diesem Browser. Exportiere regelmäßig eine Sicherung.</p><button class="action" id="exportBtn">Sicherung exportieren</button> <label class="action">Sicherung importieren<input id="importFile" type="file" accept=".json" hidden></label></div><div class="card"><h2>Arztbericht</h2><p class="muted">Öffnet eine druckfreundliche Übersicht. Im Druckdialog kannst du „Als PDF sichern“ wählen.</p><button class="action" id="reportBtn">Bericht öffnen</button></div><div class="card"><h2>App</h2><div class="muted">Neubau Version 1.5 · automatische Updates aktiviert</div></div></section>
+</main><div id="saveToast" class="toast">✓ Eintrag gespeichert</div>
 <nav><div class="inner"><button class="on" data-view="todayView">Heute</button><button data-view="courseView">Verlauf</button><button data-view="calendarView">Kalender</button><button data-view="moreView">Mehr</button></div></nav>
 
 <script>
@@ -72,7 +73,7 @@ const KEY="urtikariaDiaryFresh1";
 const triggerNames=["Stress","Anstrengung","Druck","Sonne","Infekt","Alkohol","Medikament","ungew. Essen"];
 let db=load(), editDate=iso(new Date()), monthCursor=new Date();
 if(!Array.isArray(db.medPresets))db.medPresets=[];
-let form={wheals:null,itch:null,angio:false,angioLocation:"",selectedMedication:null,meds:[],triggers:[],notes:""};
+let form={wheals:null,itch:null,angio:false,angioLocation:"",selectedMedication:null,meds:[],tabletCounts:{morning:0,noon:0,evening:0},triggers:[],notes:""};
 
 function $(id){return document.getElementById(id)}
 function iso(d){const x=new Date(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`}
@@ -82,7 +83,7 @@ function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
 function prettyDate(s){return new Intl.DateTimeFormat("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}).format(new Date(s+"T12:00:00"))}
 function score(e){return Number(e.wheals)+Number(e.itch)}
 function setView(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===id));if(id==="courseView")renderCourse();if(id==="calendarView")renderCalendar()}
-const APP_VERSION="1.3";
+const APP_VERSION="1.5";
 function showUpdateNotice(){
  const last=localStorage.getItem("urtikariaLastSeenAppVersion");
  if(last && last!==APP_VERSION){
@@ -102,7 +103,7 @@ async function ensureLatestApp(){
    });
  }catch(e){console.warn("Update-Prüfung fehlgeschlagen",e)}
 }
-function resetForm(date){editDate=date;const e=db.entries[date];form=e?JSON.parse(JSON.stringify(e)):{wheals:null,itch:null,angio:false,angioLocation:"",selectedMedication:null,meds:[],triggers:[],notes:""};if(e&&e.medication){const i=db.medPresets.findIndex(m=>m.name===e.medication.name&&m.dose===e.medication.dose);form.selectedMedication=i>=0?i:null}renderForm()}
+function resetForm(date){editDate=date;const e=db.entries[date];form=e?JSON.parse(JSON.stringify(e)):{wheals:null,itch:null,angio:false,angioLocation:"",selectedMedication:null,meds:[],tabletCounts:{morning:0,noon:0,evening:0},triggers:[],notes:""};if(e&&e.medication){const i=db.medPresets.findIndex(m=>m.name===e.medication.name&&m.dose===e.medication.dose);form.selectedMedication=i>=0?i:null}renderForm()}
 function renderForm(){
  $("todayLabel").textContent=prettyDate(editDate);$("status").textContent=db.entries[editDate]?"Eintrag vorhanden – Änderungen werden beim Speichern übernommen.":"Noch nicht erfasst.";
  document.querySelectorAll("#wheals .choice").forEach(b=>b.classList.toggle("on",Number(b.dataset.v)===form.wheals));
@@ -110,7 +111,7 @@ function renderForm(){
  document.querySelectorAll("#angio .pill").forEach(b=>b.classList.toggle("on",(b.dataset.v==="true")===form.angio));
  $("locationBox").style.display=form.angio?"block":"none";$("angioLocation").value=form.angioLocation||"";
  renderMedPresets();
- document.querySelectorAll("#meds button").forEach(b=>b.classList.toggle("on",form.meds.includes(b.dataset.v)));
+ if(!form.tabletCounts)form.tabletCounts={morning:0,noon:0,evening:0};$("tabsMorning").value=form.tabletCounts.morning||0;$("tabsNoon").value=form.tabletCounts.noon||0;$("tabsEvening").value=form.tabletCounts.evening||0;
  document.querySelectorAll("#triggers button").forEach(b=>b.classList.toggle("on",form.triggers.includes(b.dataset.v)));
  $("notes").value=form.notes||"";$("dayScore").textContent=form.wheals!==null&&form.itch!==null?`${form.wheals+form.itch} / 6`:"– / 6";
 }
@@ -121,13 +122,13 @@ function renderMedPresets(){
  host.querySelectorAll("button").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.i);form.selectedMedication=form.selectedMedication===i?null:i;renderForm()});
 }
 function addMedicationPreset(){
- const name=$("medName").value.trim(),dose=$("medDose").value.trim();
+ const name=$("medName").value.trim(),doseRaw=$("medDose").value.trim().replace(/\s*mg\s*$/i,""),dose=doseRaw?doseRaw+" mg":"";
  if(!name||!dose){alert("Bitte Präparat und Dosierung eingeben.");return}
  const existing=db.medPresets.findIndex(m=>m.name.toLowerCase()===name.toLowerCase()&&m.dose.toLowerCase()===dose.toLowerCase());
  if(existing>=0){form.selectedMedication=existing}else{db.medPresets.push({name,dose});form.selectedMedication=db.medPresets.length-1}
  persist();$("medName").value="";$("medDose").value="";renderForm()
 }
-function saveEntry(){if(form.wheals===null||form.itch===null){alert("Bitte Quaddeln und Juckreiz auswählen.");return}form.angioLocation=$("angioLocation").value.trim();form.notes=$("notes").value.trim();const medication=form.selectedMedication!==null&&db.medPresets[form.selectedMedication]?{...db.medPresets[form.selectedMedication]}:null;db.entries[editDate]={...form,medication,date:editDate,updated:new Date().toISOString()};persist();renderForm();if(navigator.vibrate)navigator.vibrate(30)}
+function saveEntry(){if(form.wheals===null||form.itch===null){alert("Bitte Quaddeln und Juckreiz auswählen.");return}form.angioLocation=$("angioLocation").value.trim();form.notes=$("notes").value.trim();form.tabletCounts={morning:Number($("tabsMorning").value),noon:Number($("tabsNoon").value),evening:Number($("tabsEvening").value)};const medication=form.selectedMedication!==null&&db.medPresets[form.selectedMedication]?{...db.medPresets[form.selectedMedication]}:null;db.entries[editDate]={...form,medication,date:editDate,updated:new Date().toISOString()};persist();renderForm();$("saveBtn").textContent="✓ Gespeichert";$("saveToast").classList.add("show");setTimeout(()=>{$("saveToast").classList.remove("show");$("saveBtn").textContent="Speichern"},1800);if(navigator.vibrate)navigator.vibrate(30)}
 function lastDates(n){const a=[];for(let i=n-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(iso(d))}return a}
 function renderCourse(){
  const d7=lastDates(7), vals=d7.map(d=>db.entries[d]).filter(Boolean), complete=d7.every(d=>db.entries[d]);
@@ -140,7 +141,7 @@ function renderCourse(){
 function drawChart(){const c=$("chart"),ctx=c.getContext("2d"),dates=lastDates(30);ctx.clearRect(0,0,c.width,c.height);ctx.strokeStyle="#dfe3df";ctx.lineWidth=1;for(let y=0;y<=6;y++){let py=190-y*28;ctx.beginPath();ctx.moveTo(28,py);ctx.lineTo(625,py);ctx.stroke()}ctx.strokeStyle="#303778";ctx.lineWidth=3;ctx.beginPath();let started=false;dates.forEach((d,i)=>{const e=db.entries[d];if(!e){started=false;return}const x=30+i*(590/29),y=190-score(e)*28;if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y)});ctx.stroke()}
 function renderCalendar(){const y=monthCursor.getFullYear(),m=monthCursor.getMonth();$("monthTitle").textContent=new Intl.DateTimeFormat("de-DE",{month:"long",year:"numeric"}).format(monthCursor);const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7;let h=["Mo","Di","Mi","Do","Fr","Sa","So"].map(x=>`<div class="muted" style="text-align:center">${x}</div>`).join("");for(let i=0;i<offset;i++)h+='<div></div>';for(let d=1;d<=days;d++){const key=iso(new Date(y,m,d)),e=db.entries[key];h+=`<button class="calcell" data-date="${key}" style="border:0;text-align:left">${d}${e?`<br><span class="dot">${score(e)}</span>${e.angio?" •":""}`:""}</button>`}$("calendar").innerHTML=h;document.querySelectorAll(".calcell").forEach(b=>b.onclick=()=>{resetForm(b.dataset.date);setView("todayView")})}
 function download(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function report(){const es=Object.values(db.entries).sort((a,b)=>a.date.localeCompare(b.date));const rows=es.map(e=>`<tr><td>${esc(e.date)}</td><td>${e.wheals}</td><td>${e.itch}</td><td>${score(e)}</td><td>${e.angio?"Ja":"Nein"}</td><td>${e.medication?esc(e.medication.name+" "+e.medication.dose):""}${e.meds?.length?" · "+esc(e.meds.join(", ")):""}</td><td>${esc(e.triggers.join(", "))}</td><td>${esc(e.notes)}</td></tr>`).join("");const w=open("","_blank");if(!w)return alert("Pop-up wurde blockiert.");w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Urtikaria Bericht</title><style>body{font-family:Arial,sans-serif;padding:28px;color:#222}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #ccc;padding:6px;text-align:left}button{padding:10px;margin-bottom:15px}@media print{button{display:none}}</style></head><body><button onclick="print()">Drucken / als PDF sichern</button><h1>Urtikaria Tagebuch – Arztbericht</h1><p>Einträge: ${es.length}</p><table><thead><tr><th>Datum</th><th>Quaddeln</th><th>Juckreiz</th><th>UAS</th><th>Angioödem</th><th>Antihistaminikum</th><th>Auslöser</th><th>Notizen</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close()}
+function report(){const es=Object.values(db.entries).sort((a,b)=>a.date.localeCompare(b.date));const rows=es.map(e=>`<tr><td>${esc(e.date)}</td><td>${e.wheals}</td><td>${e.itch}</td><td>${score(e)}</td><td>${e.angio?"Ja":"Nein"}</td><td>${e.medication?esc(e.medication.name+" "+e.medication.dose):""}${e.tabletCounts?` · morgens ${e.tabletCounts.morning||0}, mittags ${e.tabletCounts.noon||0}, abends ${e.tabletCounts.evening||0} Tbl.`:""}</td><td>${esc(e.triggers.join(", "))}</td><td>${esc(e.notes)}</td></tr>`).join("");const w=open("","_blank");if(!w)return alert("Pop-up wurde blockiert.");w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Urtikaria Bericht</title><style>body{font-family:Arial,sans-serif;padding:28px;color:#222}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #ccc;padding:6px;text-align:left}button{padding:10px;margin-bottom:15px}@media print{button{display:none}}</style></head><body><button onclick="print()">Drucken / als PDF sichern</button><h1>Urtikaria Tagebuch – Arztbericht</h1><p>Einträge: ${es.length}</p><table><thead><tr><th>Datum</th><th>Quaddeln</th><th>Juckreiz</th><th>UAS</th><th>Angioödem</th><th>Antihistaminikum</th><th>Auslöser</th><th>Notizen</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close()}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>setView(b.dataset.view));$("homeBtn").onclick=()=>{resetForm(iso(new Date()));setView("todayView")};
 document.querySelectorAll("#wheals .choice").forEach(b=>b.onclick=()=>{form.wheals=Number(b.dataset.v);renderForm()});document.querySelectorAll("#itch .choice").forEach(b=>b.onclick=()=>{form.itch=Number(b.dataset.v);renderForm()});
 document.querySelectorAll("#angio .pill").forEach(b=>b.onclick=()=>{form.angio=b.dataset.v==="true";renderForm()});document.querySelectorAll("#meds button").forEach(b=>b.onclick=()=>{form.meds=form.meds.includes(b.dataset.v)?form.meds.filter(x=>x!==b.dataset.v):[...form.meds,b.dataset.v];renderForm()});
