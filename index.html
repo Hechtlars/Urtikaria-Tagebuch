@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Urtikaria">
-<meta name="app-version" content="NEUBAU-1.5">
+<meta name="app-version" content="NEUBAU-1.7">
 <title>Urtikaria Tagebuch</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-180.png">
@@ -21,7 +21,7 @@ header{position:sticky;top:0;z-index:5;background:#f5f7f4ee;backdrop-filter:blur
 h1{font-size:27px;margin:8px 0 2px}h2{font-size:17px;margin:0 0 12px}.muted{color:var(--mut);font-size:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #00000008}
 .choices{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.choice{min-height:72px;border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:8px 4px;text-align:center}.choice b{display:block;font-size:23px}.choice small{font-size:11px}.choice.on{border-color:var(--brand);background:var(--soft);color:var(--brand)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pill{min-height:46px;border:1.5px solid var(--line);background:#fff;border-radius:13px;font-weight:700}.pill.on{border-color:var(--brand);background:var(--soft);color:var(--brand)}
-.times,.chips{display:flex;gap:7px;overflow:auto;padding-bottom:2px}.times button,.chips button{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 12px}.times button.on,.chips button.on{background:var(--soft);border-color:var(--brand);color:var(--brand)}
+.times{display:flex;gap:7px;overflow:auto;padding-bottom:2px}.chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.times button,.chips button{border:1px solid var(--line);background:#fff;border-radius:13px;padding:10px 12px}.chips button{white-space:normal;text-align:center;min-height:44px}.times button.on,.chips button.on{background:var(--soft);border-color:var(--brand);color:var(--brand)}
 textarea,input[type=date]{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fff}textarea{min-height:70px;resize:vertical}
 .save{position:sticky;bottom:78px;width:100%;border:0;border-radius:14px;background:var(--brand);color:#fff;padding:14px;font-weight:800;font-size:16px}
 .score{display:flex;justify-content:space-between;align-items:center;background:#fafafa;border-radius:13px;padding:11px;margin-top:10px}.score strong{font-size:22px;color:var(--brand)}
@@ -31,6 +31,7 @@ nav .inner{width:min(680px,100%);display:grid;grid-template-columns:repeat(4,1fr
 .metricgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{text-align:center;background:#fafafa;border-radius:13px;padding:10px}.metric b{display:block;font-size:20px;color:var(--brand)}
 canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calcell{min-height:52px;background:#fafafa;border-radius:10px;padding:5px;font-size:12px}.dot{display:inline-block;margin-top:4px;padding:3px 6px;border-radius:999px;background:var(--soft);color:var(--brand);font-weight:800}
 .action{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px}.danger{color:#a02020}.banner{background:var(--soft);border:1px solid #d8dcff;border-radius:14px;padding:12px;margin:10px 0}.toast{position:fixed;left:50%;bottom:145px;transform:translateX(-50%);z-index:20;background:#182016;color:white;padding:11px 16px;border-radius:999px;font-weight:800;opacity:0;transition:.2s}.toast.show{opacity:1}.dosegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.dosebox{text-align:center;background:#fafafa;border-radius:13px;padding:8px}.dosebox select{width:100%;padding:8px;border:1px solid var(--line);border-radius:9px;background:white}
+.medrow{display:flex;gap:7px;align-items:center;margin:7px 0}.medrow .medpick{flex:1;text-align:left}.iconbtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 10px}.mededit{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
 @media(max-width:390px){.wrap{padding:10px}.choice{min-height:68px}.card{padding:13px}.choices{gap:6px}}
 </style>
 </head>
@@ -57,13 +58,16 @@ canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repe
 <div class="dosebox"><label>Mittags</label><select id="tabsNoon"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
 <div class="dosebox"><label>Abends</label><select id="tabsEvening"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div></div>
 </div>
-<div class="card"><h2>5. Auslöser / Besonderheiten</h2><div class="chips" id="triggers"></div><textarea id="notes" placeholder="Weitere Auslöser / Notizen …" style="margin-top:10px"></textarea></div>
+<div class="card"><h2>5. Auslöser / Besonderheiten</h2><div class="chips" id="triggers"></div>
+<div style="display:flex;gap:8px;margin-top:10px"><input id="customTrigger" placeholder="Sonstiges – individuellen Auslöser eingeben"><button class="action" id="addCustomTrigger">Hinzufügen</button></div>
+<div id="customTriggerList" class="chips" style="margin-top:8px"></div>
+<textarea id="notes" placeholder="Weitere Bemerkungen …" style="margin-top:10px"></textarea></div>
 <button class="save" id="saveBtn">Speichern</button>
 </section>
 
 <section id="courseView" class="view"><h1>Verlauf</h1><div class="card"><div class="metricgrid"><div class="metric"><span class="muted">UAS7</span><b id="uas7">–</b></div><div class="metric"><span class="muted">Ø 7 Tage</span><b id="avg7">–</b></div><div class="metric"><span class="muted">Angioödem</span><b id="angio7">–</b></div></div></div><div class="card"><h2>Letzte 30 Tage</h2><canvas id="chart" width="640" height="220"></canvas></div><div class="card"><h2>Einträge</h2><div id="entries"></div></div></section>
 <section id="calendarView" class="view"><h1>Kalender</h1><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><button class="action" id="prevMonth">‹</button><b id="monthTitle"></b><button class="action" id="nextMonth">›</button></div><div class="calendar" id="calendar"></div></div></section>
-<section id="moreView" class="view"><h1>Mehr</h1><div class="card"><h2>Datensicherung</h2><p class="muted">Die App speichert Einträge lokal in diesem Browser. Exportiere regelmäßig eine Sicherung.</p><button class="action" id="exportBtn">Sicherung exportieren</button> <label class="action">Sicherung importieren<input id="importFile" type="file" accept=".json" hidden></label></div><div class="card"><h2>Arztbericht</h2><p class="muted">Öffnet eine druckfreundliche Übersicht. Im Druckdialog kannst du „Als PDF sichern“ wählen.</p><button class="action" id="reportBtn">Bericht öffnen</button></div><div class="card"><h2>App</h2><div class="muted">Neubau Version 1.5 · automatische Updates aktiviert</div></div></section>
+<section id="moreView" class="view"><h1>Mehr</h1><div class="card"><h2>Datensicherung</h2><p class="muted">Die App speichert Einträge lokal in diesem Browser. Exportiere regelmäßig eine Sicherung.</p><button class="action" id="exportBtn">Sicherung exportieren</button> <label class="action">Sicherung importieren<input id="importFile" type="file" accept=".json" hidden></label></div><div class="card"><h2>Arztbericht</h2><p class="muted">Öffnet eine druckfreundliche Übersicht. Im Druckdialog kannst du „Als PDF sichern“ wählen.</p><button class="action" id="reportBtn">Bericht öffnen</button></div><div class="card"><h2>App</h2><div class="muted">Neubau Version 1.7 · automatische Updates aktiviert</div></div></section>
 </main><div id="saveToast" class="toast">✓ Eintrag gespeichert</div>
 <nav><div class="inner"><button class="on" data-view="todayView">Heute</button><button data-view="courseView">Verlauf</button><button data-view="calendarView">Kalender</button><button data-view="moreView">Mehr</button></div></nav>
 
@@ -72,7 +76,7 @@ canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repe
 const KEY="urtikariaDiaryFresh1";
 const triggerNames=["Stress","Anstrengung","Druck","Sonne","Infekt","Alkohol","Medikament","ungew. Essen"];
 let db=load(), editDate=iso(new Date()), monthCursor=new Date();
-if(!Array.isArray(db.medPresets))db.medPresets=[];
+if(!Array.isArray(db.medPresets))db.medPresets=[];if(!Array.isArray(db.customTriggers))db.customTriggers=[];
 let form={wheals:null,itch:null,angio:false,angioLocation:"",selectedMedication:null,meds:[],tabletCounts:{morning:0,noon:0,evening:0},triggers:[],notes:""};
 
 function $(id){return document.getElementById(id)}
@@ -83,7 +87,7 @@ function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
 function prettyDate(s){return new Intl.DateTimeFormat("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}).format(new Date(s+"T12:00:00"))}
 function score(e){return Number(e.wheals)+Number(e.itch)}
 function setView(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===id));if(id==="courseView")renderCourse();if(id==="calendarView")renderCalendar()}
-const APP_VERSION="1.5";
+const APP_VERSION="1.7";
 function showUpdateNotice(){
  const last=localStorage.getItem("urtikariaLastSeenAppVersion");
  if(last && last!==APP_VERSION){
@@ -113,13 +117,34 @@ function renderForm(){
  renderMedPresets();
  if(!form.tabletCounts)form.tabletCounts={morning:0,noon:0,evening:0};$("tabsMorning").value=form.tabletCounts.morning||0;$("tabsNoon").value=form.tabletCounts.noon||0;$("tabsEvening").value=form.tabletCounts.evening||0;
  document.querySelectorAll("#triggers button").forEach(b=>b.classList.toggle("on",form.triggers.includes(b.dataset.v)));
+ renderCustomTriggers();
  $("notes").value=form.notes||"";$("dayScore").textContent=form.wheals!==null&&form.itch!==null?`${form.wheals+form.itch} / 6`:"– / 6";
 }
 function renderMedPresets(){
  const host=$("medPresets");
  if(!db.medPresets.length){host.innerHTML='<span class="muted">Noch kein Präparat gespeichert.</span>';return}
- host.innerHTML=db.medPresets.map((m,i)=>`<button data-i="${i}" class="${form.selectedMedication===i?"on":""}">${esc(m.name)} · ${esc(m.dose)}</button>`).join("");
- host.querySelectorAll("button").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.i);form.selectedMedication=form.selectedMedication===i?null:i;renderForm()});
+ host.innerHTML=db.medPresets.map((m,i)=>`<div class="medrow"><button data-select="${i}" class="medpick ${form.selectedMedication===i?"on":""}">${esc(m.name)} · ${esc(m.dose)}</button><button class="iconbtn" data-edit="${i}" aria-label="Präparat bearbeiten">✎</button><button class="iconbtn danger" data-delete="${i}" aria-label="Präparat löschen">×</button></div>`).join("");
+ host.querySelectorAll("[data-select]").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.select);form.selectedMedication=form.selectedMedication===i?null:i;renderForm()});
+ host.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editMedicationPreset(Number(b.dataset.edit)));
+ host.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteMedicationPreset(Number(b.dataset.delete)));
+}
+function editMedicationPreset(i){
+ const m=db.medPresets[i]; if(!m)return;
+ const name=prompt("Präparatname bearbeiten:",m.name); if(name===null)return;
+ const dose=prompt("Dosierung in mg bearbeiten:",String(m.dose).replace(/\s*mg\s*$/i,"")); if(dose===null)return;
+ const cleanName=name.trim(),cleanDose=dose.trim().replace(/\s*mg\s*$/i,"");
+ if(!cleanName||!cleanDose){alert("Präparat und Dosierung dürfen nicht leer sein.");return}
+ const old={...m}; db.medPresets[i]={name:cleanName,dose:cleanDose+" mg"};
+ // Existing diary entries retain what was actually documented; only the reusable preset changes.
+ persist(); renderForm();
+}
+function deleteMedicationPreset(i){
+ const m=db.medPresets[i]; if(!m)return;
+ if(!confirm(`Gespeichertes Präparat „${m.name} ${m.dose}“ löschen?\n\nBereits dokumentierte Tagebucheinträge bleiben erhalten.`))return;
+ db.medPresets.splice(i,1);
+ if(form.selectedMedication===i)form.selectedMedication=null;
+ else if(form.selectedMedication!==null&&form.selectedMedication>i)form.selectedMedication--;
+ persist();renderForm();
 }
 function addMedicationPreset(){
  const name=$("medName").value.trim(),doseRaw=$("medDose").value.trim().replace(/\s*mg\s*$/i,""),dose=doseRaw?doseRaw+" mg":"";
@@ -127,6 +152,20 @@ function addMedicationPreset(){
  const existing=db.medPresets.findIndex(m=>m.name.toLowerCase()===name.toLowerCase()&&m.dose.toLowerCase()===dose.toLowerCase());
  if(existing>=0){form.selectedMedication=existing}else{db.medPresets.push({name,dose});form.selectedMedication=db.medPresets.length-1}
  persist();$("medName").value="";$("medDose").value="";renderForm()
+}
+function renderCustomTriggers(){
+ const host=$("customTriggerList");
+ if(!db.customTriggers.length){host.innerHTML="";return}
+ host.innerHTML=db.customTriggers.map((x,i)=>`<div style="display:flex;gap:5px"><button data-custom="${i}" class="${form.triggers.includes(x)?"on":""}" style="flex:1">${esc(x)}</button><button class="iconbtn danger" data-custom-delete="${i}" aria-label="Sonstigen Auslöser löschen">×</button></div>`).join("");
+ host.querySelectorAll("[data-custom]").forEach(b=>b.onclick=()=>{const x=db.customTriggers[Number(b.dataset.custom)];form.triggers=form.triggers.includes(x)?form.triggers.filter(y=>y!==x):[...form.triggers,x];renderForm()});
+ host.querySelectorAll("[data-custom-delete]").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.customDelete),x=db.customTriggers[i];if(confirm(`„${x}“ aus den gespeicherten sonstigen Auslösern löschen?`)){db.customTriggers.splice(i,1);form.triggers=form.triggers.filter(y=>y!==x);persist();renderForm()}});
+}
+function addCustomTrigger(){
+ const x=$("customTrigger").value.trim();
+ if(!x)return;
+ if(!db.customTriggers.some(y=>y.toLowerCase()===x.toLowerCase()))db.customTriggers.push(x);
+ if(!form.triggers.includes(x))form.triggers.push(x);
+ $("customTrigger").value="";persist();renderForm();
 }
 function saveEntry(){if(form.wheals===null||form.itch===null){alert("Bitte Quaddeln und Juckreiz auswählen.");return}form.angioLocation=$("angioLocation").value.trim();form.notes=$("notes").value.trim();form.tabletCounts={morning:Number($("tabsMorning").value),noon:Number($("tabsNoon").value),evening:Number($("tabsEvening").value)};const medication=form.selectedMedication!==null&&db.medPresets[form.selectedMedication]?{...db.medPresets[form.selectedMedication]}:null;db.entries[editDate]={...form,medication,date:editDate,updated:new Date().toISOString()};persist();renderForm();$("saveBtn").textContent="✓ Gespeichert";$("saveToast").classList.add("show");setTimeout(()=>{$("saveToast").classList.remove("show");$("saveBtn").textContent="Speichern"},1800);if(navigator.vibrate)navigator.vibrate(30)}
 function lastDates(n){const a=[];for(let i=n-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(iso(d))}return a}
@@ -146,7 +185,7 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>setView(b.datas
 document.querySelectorAll("#wheals .choice").forEach(b=>b.onclick=()=>{form.wheals=Number(b.dataset.v);renderForm()});document.querySelectorAll("#itch .choice").forEach(b=>b.onclick=()=>{form.itch=Number(b.dataset.v);renderForm()});
 document.querySelectorAll("#angio .pill").forEach(b=>b.onclick=()=>{form.angio=b.dataset.v==="true";renderForm()});document.querySelectorAll("#meds button").forEach(b=>b.onclick=()=>{form.meds=form.meds.includes(b.dataset.v)?form.meds.filter(x=>x!==b.dataset.v):[...form.meds,b.dataset.v];renderForm()});
 triggerNames.forEach(x=>{const b=document.createElement("button");b.textContent=x;b.dataset.v=x;b.onclick=()=>{form.triggers=form.triggers.includes(x)?form.triggers.filter(y=>y!==x):[...form.triggers,x];renderForm()};$("triggers").appendChild(b)});
-$("saveBtn").onclick=saveEntry;$("addMedPreset").onclick=addMedicationPreset;$("prevMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1);renderCalendar()};$("nextMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1);renderCalendar()};
+$("saveBtn").onclick=saveEntry;$("addMedPreset").onclick=addMedicationPreset;$("addCustomTrigger").onclick=addCustomTrigger;$("prevMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1);renderCalendar()};$("nextMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1);renderCalendar()};
 $("exportBtn").onclick=()=>download("urtikaria-sicherung.json",JSON.stringify(db,null,2),"application/json");$("importFile").onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(!x.entries)throw new Error();db=x;persist();resetForm(iso(new Date()));alert("Sicherung importiert.")}catch{alert("Die Sicherungsdatei konnte nicht gelesen werden.")}};$("reportBtn").onclick=report;
 resetForm(iso(new Date()));renderCalendar();
 window.addEventListener("load",()=>{showUpdateNotice();ensureLatestApp()});
