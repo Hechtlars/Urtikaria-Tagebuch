@@ -1,0 +1,8 @@
+{
+  "name":"urtikaria-push",
+  "main":"src/index.js",
+  "compatibility_date":"2026-08-01",
+  "compatibility_flags":["nodejs_compat"],
+  "triggers":{"crons":["* * * * *"]},
+  "d1_databases":[{"binding":"DB","database_name":"urtikaria-push","database_id":"HIER_D1_ID"}]
+}

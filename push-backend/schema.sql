@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS subscriptions(endpoint TEXT PRIMARY KEY, subscription TEXT NOT NULL, local_time TEXT NOT NULL, timezone TEXT NOT NULL, last_sent_date TEXT);

@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Urtikaria">
-<meta name="app-version" content="NEUBAU-1.7">
+<meta name="app-version" content="NEUBAU-1.9">
 <title>Urtikaria Tagebuch</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-180.png">
@@ -67,7 +67,11 @@ canvas{width:100%;height:220px}.calendar{display:grid;grid-template-columns:repe
 
 <section id="courseView" class="view"><h1>Verlauf</h1><div class="card"><div class="metricgrid"><div class="metric"><span class="muted">UAS7</span><b id="uas7">–</b></div><div class="metric"><span class="muted">Ø 7 Tage</span><b id="avg7">–</b></div><div class="metric"><span class="muted">Angioödem</span><b id="angio7">–</b></div></div></div><div class="card"><h2>Letzte 30 Tage</h2><canvas id="chart" width="640" height="220"></canvas></div><div class="card"><h2>Einträge</h2><div id="entries"></div></div></section>
 <section id="calendarView" class="view"><h1>Kalender</h1><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><button class="action" id="prevMonth">‹</button><b id="monthTitle"></b><button class="action" id="nextMonth">›</button></div><div class="calendar" id="calendar"></div></div></section>
-<section id="moreView" class="view"><h1>Mehr</h1><div class="card"><h2>Datensicherung</h2><p class="muted">Die App speichert Einträge lokal in diesem Browser. Exportiere regelmäßig eine Sicherung.</p><button class="action" id="exportBtn">Sicherung exportieren</button> <label class="action">Sicherung importieren<input id="importFile" type="file" accept=".json" hidden></label></div><div class="card"><h2>Arztbericht</h2><p class="muted">Öffnet eine druckfreundliche Übersicht. Im Druckdialog kannst du „Als PDF sichern“ wählen.</p><button class="action" id="reportBtn">Bericht öffnen</button></div><div class="card"><h2>App</h2><div class="muted">Neubau Version 1.7 · automatische Updates aktiviert</div></div></section>
+<section id="moreView" class="view"><h1>Mehr</h1><div class="card"><h2>Push-Erinnerung</h2>
+<p class="muted">Tägliche, diskrete Erinnerung – ohne Eintrag im Kalender.</p>
+<div style="display:flex;gap:8px;align-items:center"><input id="reminderTime" type="time" value="18:00" style="flex:1"><button class="action" id="pushToggle">Aktivieren</button></div>
+<div id="reminderStatus" class="muted" style="margin-top:9px"></div>
+<p class="muted" style="font-size:12px;margin-top:8px">Auf dem iPhone muss die App zum Home-Bildschirm hinzugefügt sein. Beim Aktivieren fragt iOS einmal nach der Erlaubnis für Mitteilungen.</p></div></div><div class="card"><h2>Datensicherung</h2><p class="muted">Die App speichert Einträge lokal in diesem Browser. Exportiere regelmäßig eine Sicherung.</p><button class="action" id="exportBtn">Sicherung exportieren</button> <label class="action">Sicherung importieren<input id="importFile" type="file" accept=".json" hidden></label></div><div class="card"><h2>Arztbericht</h2><p class="muted">Öffnet eine druckfreundliche Übersicht. Im Druckdialog kannst du „Als PDF sichern“ wählen.</p><button class="action" id="reportBtn">Bericht öffnen</button></div><div class="card"><h2>App</h2><div class="muted">Neubau Version 1.9 · automatische Updates aktiviert</div></div></section>
 </main><div id="saveToast" class="toast">✓ Eintrag gespeichert</div>
 <nav><div class="inner"><button class="on" data-view="todayView">Heute</button><button data-view="courseView">Verlauf</button><button data-view="calendarView">Kalender</button><button data-view="moreView">Mehr</button></div></nav>
 
@@ -87,7 +91,7 @@ function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
 function prettyDate(s){return new Intl.DateTimeFormat("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}).format(new Date(s+"T12:00:00"))}
 function score(e){return Number(e.wheals)+Number(e.itch)}
 function setView(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===id));if(id==="courseView")renderCourse();if(id==="calendarView")renderCalendar()}
-const APP_VERSION="1.7";
+const APP_VERSION="1.9";
 function showUpdateNotice(){
  const last=localStorage.getItem("urtikariaLastSeenAppVersion");
  if(last && last!==APP_VERSION){
@@ -180,12 +184,36 @@ function renderCourse(){
 function drawChart(){const c=$("chart"),ctx=c.getContext("2d"),dates=lastDates(30);ctx.clearRect(0,0,c.width,c.height);ctx.strokeStyle="#dfe3df";ctx.lineWidth=1;for(let y=0;y<=6;y++){let py=190-y*28;ctx.beginPath();ctx.moveTo(28,py);ctx.lineTo(625,py);ctx.stroke()}ctx.strokeStyle="#303778";ctx.lineWidth=3;ctx.beginPath();let started=false;dates.forEach((d,i)=>{const e=db.entries[d];if(!e){started=false;return}const x=30+i*(590/29),y=190-score(e)*28;if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y)});ctx.stroke()}
 function renderCalendar(){const y=monthCursor.getFullYear(),m=monthCursor.getMonth();$("monthTitle").textContent=new Intl.DateTimeFormat("de-DE",{month:"long",year:"numeric"}).format(monthCursor);const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7;let h=["Mo","Di","Mi","Do","Fr","Sa","So"].map(x=>`<div class="muted" style="text-align:center">${x}</div>`).join("");for(let i=0;i<offset;i++)h+='<div></div>';for(let d=1;d<=days;d++){const key=iso(new Date(y,m,d)),e=db.entries[key];h+=`<button class="calcell" data-date="${key}" style="border:0;text-align:left">${d}${e?`<br><span class="dot">${score(e)}</span>${e.angio?" •":""}`:""}</button>`}$("calendar").innerHTML=h;document.querySelectorAll(".calcell").forEach(b=>b.onclick=()=>{resetForm(b.dataset.date);setView("todayView")})}
 function download(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+const PUSH_API="__PUSH_API_URL__";
+function urlB64(s){const p=s+"=".repeat((4-s.length%4)%4),raw=atob(p.replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)))}
+async function enablePush(){
+ if(PUSH_API.startsWith("__")){alert("Push-Server noch nicht verbunden. Bitte zuerst die einmalige Einrichtung aus PUSH-EINRICHTUNG.txt durchführen.");return}
+ if(!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)){alert("Push-Mitteilungen werden auf diesem Gerät nicht unterstützt.");return}
+ try{
+  const permission=await Notification.requestPermission();
+  if(permission!=="granted"){$("reminderStatus").textContent="Mitteilungen wurden nicht erlaubt.";return}
+  const reg=await navigator.serviceWorker.ready;
+  const publicKey=await fetch(PUSH_API+"/vapid-public").then(r=>{if(!r.ok)throw Error();return r.text()});
+  let sub=await reg.pushManager.getSubscription();
+  if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64(publicKey.trim())});
+  const time=$("reminderTime").value||"18:00",tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"Europe/Berlin";
+  const r=await fetch(PUSH_API+"/subscribe",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({subscription:sub.toJSON(),time,tz})});
+  if(!r.ok)throw Error();
+  localStorage.setItem("urtikariaReminderTime",time);localStorage.setItem("urtikariaPushEnabled","1");
+  $("reminderStatus").textContent=`✓ Tägliche Erinnerung um ${time} Uhr aktiv.`;$("pushToggle").textContent="Ausschalten";
+ }catch(e){$("reminderStatus").textContent="Push konnte nicht aktiviert werden. Bitte Internetverbindung und Einrichtung prüfen."}
+}
+async function disablePush(){
+ try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(sub&&!PUSH_API.startsWith("__"))await fetch(PUSH_API+"/unsubscribe",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({endpoint:sub.endpoint})});if(sub)await sub.unsubscribe()}catch(e){}
+ localStorage.removeItem("urtikariaPushEnabled");$("reminderStatus").textContent="Erinnerung ausgeschaltet.";$("pushToggle").textContent="Aktivieren";
+}
+function togglePush(){return localStorage.getItem("urtikariaPushEnabled")==="1"?disablePush():enablePush()}
 function report(){const es=Object.values(db.entries).sort((a,b)=>a.date.localeCompare(b.date));const rows=es.map(e=>`<tr><td>${esc(e.date)}</td><td>${e.wheals}</td><td>${e.itch}</td><td>${score(e)}</td><td>${e.angio?"Ja":"Nein"}</td><td>${e.medication?esc(e.medication.name+" "+e.medication.dose):""}${e.tabletCounts?` · morgens ${e.tabletCounts.morning||0}, mittags ${e.tabletCounts.noon||0}, abends ${e.tabletCounts.evening||0} Tbl.`:""}</td><td>${esc(e.triggers.join(", "))}</td><td>${esc(e.notes)}</td></tr>`).join("");const w=open("","_blank");if(!w)return alert("Pop-up wurde blockiert.");w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Urtikaria Bericht</title><style>body{font-family:Arial,sans-serif;padding:28px;color:#222}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid #ccc;padding:6px;text-align:left}button{padding:10px;margin-bottom:15px}@media print{button{display:none}}</style></head><body><button onclick="print()">Drucken / als PDF sichern</button><h1>Urtikaria Tagebuch – Arztbericht</h1><p>Einträge: ${es.length}</p><table><thead><tr><th>Datum</th><th>Quaddeln</th><th>Juckreiz</th><th>UAS</th><th>Angioödem</th><th>Antihistaminikum</th><th>Auslöser</th><th>Notizen</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close()}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>setView(b.dataset.view));$("homeBtn").onclick=()=>{resetForm(iso(new Date()));setView("todayView")};
 document.querySelectorAll("#wheals .choice").forEach(b=>b.onclick=()=>{form.wheals=Number(b.dataset.v);renderForm()});document.querySelectorAll("#itch .choice").forEach(b=>b.onclick=()=>{form.itch=Number(b.dataset.v);renderForm()});
 document.querySelectorAll("#angio .pill").forEach(b=>b.onclick=()=>{form.angio=b.dataset.v==="true";renderForm()});document.querySelectorAll("#meds button").forEach(b=>b.onclick=()=>{form.meds=form.meds.includes(b.dataset.v)?form.meds.filter(x=>x!==b.dataset.v):[...form.meds,b.dataset.v];renderForm()});
 triggerNames.forEach(x=>{const b=document.createElement("button");b.textContent=x;b.dataset.v=x;b.onclick=()=>{form.triggers=form.triggers.includes(x)?form.triggers.filter(y=>y!==x):[...form.triggers,x];renderForm()};$("triggers").appendChild(b)});
-$("saveBtn").onclick=saveEntry;$("addMedPreset").onclick=addMedicationPreset;$("addCustomTrigger").onclick=addCustomTrigger;$("prevMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1);renderCalendar()};$("nextMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1);renderCalendar()};
+$("saveBtn").onclick=saveEntry;$("addMedPreset").onclick=addMedicationPreset;$("addCustomTrigger").onclick=addCustomTrigger;$("pushToggle").onclick=togglePush;const rt=localStorage.getItem("urtikariaReminderTime");if(rt)$("reminderTime").value=rt;if(localStorage.getItem("urtikariaPushEnabled")==="1"){$("reminderStatus").textContent=`✓ Tägliche Erinnerung um ${rt||"18:00"} Uhr aktiv.`;$("pushToggle").textContent="Ausschalten";}$("prevMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1);renderCalendar()};$("nextMonth").onclick=()=>{monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1);renderCalendar()};
 $("exportBtn").onclick=()=>download("urtikaria-sicherung.json",JSON.stringify(db,null,2),"application/json");$("importFile").onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(!x.entries)throw new Error();db=x;persist();resetForm(iso(new Date()));alert("Sicherung importiert.")}catch{alert("Die Sicherungsdatei konnte nicht gelesen werden.")}};$("reportBtn").onclick=report;
 resetForm(iso(new Date()));renderCalendar();
 window.addEventListener("load",()=>{showUpdateNotice();ensureLatestApp()});

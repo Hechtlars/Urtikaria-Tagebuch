@@ -1,0 +1,30 @@
+Urtikaria Tagebuch V1.9 – Push einmalig einrichten
+
+Die Tagebuch-/Gesundheitsdaten werden NICHT an den Push-Dienst übertragen.
+Der Dienst speichert nur Push-Subscription, gewünschte Uhrzeit, Zeitzone und Datum der letzten Erinnerung.
+
+1) Kostenloses Cloudflare-Konto anlegen.
+2) Terminal im Ordner push-backend öffnen.
+3) npm install
+4) npx wrangler login
+5) npx wrangler d1 create urtikaria-push
+6) Die ausgegebene database_id in wrangler.jsonc bei HIER_D1_ID einsetzen.
+7) npx wrangler d1 execute urtikaria-push --remote --file=schema.sql
+8) npx web-push generate-vapid-keys
+9) npx wrangler secret put VAPID_PUBLIC_KEY
+   -> Public Key aus Schritt 8 einfügen
+10) npx wrangler secret put VAPID_PRIVATE_KEY
+   -> Private Key aus Schritt 8 einfügen
+11) npx wrangler secret put VAPID_SUBJECT
+   -> z.B. mailto:deine-email@example.de
+12) npx wrangler deploy
+13) Die ausgegebene workers.dev-Adresse kopieren.
+14) In index.html __PUSH_API_URL__ durch diese Adresse ersetzen, z.B.
+    https://urtikaria-push.DEINNAME.workers.dev
+15) Die App-Dateien wie bisher nach GitHub hochladen.
+
+Danach auf dem iPhone:
+App vom Home-Bildschirm öffnen > Mehr > Push-Erinnerung > Uhrzeit > Aktivieren > Mitteilungen erlauben.
+
+Cloudflare-Free-Tarif: Für einen kleinen Prototyp/Piloten ausgelegt. Vor breiter öffentlicher
+oder produktiver Nutzung Datenschutz, Auftragsverarbeitung, Limits und Betriebsverantwortung prüfen.
